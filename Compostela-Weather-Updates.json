@@ -1,0 +1,443 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        384
+      ],
+      "id": "b49c796f-4ed0-4d56-9be0-3767bf098bf6",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v23.0",
+        "node": "me",
+        "edge": "photos",
+        "sendBinaryData": true,
+        "binaryPropertyName": "data",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "message",
+                "value": "={{ $('Message a model Compostela').item.json.message.content }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        304
+      ],
+      "id": "ab38d69c-cb0b-4bd4-b8d8-f839fe3295c0",
+      "name": "Post to Facebook Page",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "scNty5yC84VBaXci",
+          "name": "Facebook Graph account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "This node publishes the weather update to the official Facebook Page.  \nIt receives:\n- Caption text (weather summary from OpenWeatherMap → ChatGPT).  \n  \n⚠️ Requires:\n- Facebook Page access token with permissions:\n  - pages_show_list\n  - pages_read_engagement\n  - pages_manage_posts\n- Connected Page ID.\n\n\n\n\n\n\n\n\n\n\n\n\n\n📌 If posting text only:\n  Use the `/feed` endpoint with `message`.\n  Use the `/photo` endpoint ",
+        "height": 496,
+        "width": 512,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1456,
+        48
+      ],
+      "typeVersion": 1,
+      "id": "cdaa4b53-66cf-4bf0-8ed1-1ab7cd1ab025",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": " ",
+        "height": 368,
+        "width": 912,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -528,
+        192
+      ],
+      "typeVersion": 1,
+      "id": "118a3276-1d1a-4780-a132-b26ca822ea5a",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "Merges location and weather text onto the image, producing a single ready-to-post Facebook image.\n",
+        "height": 352,
+        "width": 768,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        512,
+        192
+      ],
+      "typeVersion": 1,
+      "id": "a5d9c9ce-99af-4061-91af-b00cda000178",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "format": "imperial",
+        "locationSelection": "coordinates",
+        "latitude": "10.4550",
+        "longitude": "124.0106"
+      },
+      "type": "n8n-nodes-base.openWeatherMap",
+      "typeVersion": 1,
+      "position": [
+        -272,
+        304
+      ],
+      "id": "bb06efc9-1ec7-4860-b462-313083103e43",
+      "name": "OpenWeatherMap (get Compostela Weather)",
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "Jv1xlzWIj7GT1W1m",
+          "name": "OpenWeatherMap account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Summarize today’s weather for {{ $json.name }} {{ $json.sys.country }}Show min temp, max temp, and main condition. Write 1–2 short, friendly English sentences for a Facebook post.\n\n{{ $json.coord }}\n{{ $json.coord.lon }}\n{{ $json.coord.lat }}\n{{ $json.weather }}\n{{ $json.weather[0].main }}\n{{ $json.weather[0].description }}\n{{ $json.main }}\n{{ $json.main.temp }}\n{{ $json.main.feels_like }}\n{{ $json.main.temp_min }}\n{{ $json.main.temp_max }}\n{{ $json.main.pressure }}\n{{ $json.main.humidity }}\n{{ $json.main.sea_level }}\n{{ $json.main.grnd_level }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        96,
+        304
+      ],
+      "id": "0658a5a6-ec3b-41ca-9cce-cf6505257d5e",
+      "name": "Message a model Compostela",
+      "credentials": {
+        "openAiApi": {
+          "id": "L7bZdDkX8sskfo4x",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2c6e00b3-e11b-4a45-a63a-ec5a70b57708",
+              "name": "Location",
+              "value": "={{ $('OpenWeatherMap (get Compostela Weather)').item.json.name }}, Cebu",
+              "type": "string"
+            },
+            {
+              "id": "84ccab3a-267c-47ae-9fb1-9e3e6bc17a8a",
+              "name": "tempCompostela",
+              "value": "={{ $('OpenWeatherMap (get Compostela Weather)').item.json.main.temp }}°F",
+              "type": "string"
+            },
+            {
+              "id": "c7fbda8c-8d01-4eb9-bb1b-a732866ae203",
+              "name": "humidity",
+              "value": "={{ $('OpenWeatherMap (get Compostela Weather)').item.json.main.humidity }}%",
+              "type": "string"
+            },
+            {
+              "id": "f4c0b26d-ac2e-46aa-b1b6-371220dc4500",
+              "name": "windSpeed",
+              "value": "={{ $('OpenWeatherMap (get Compostela Weather)').item.json.wind.speed }} KM/H",
+              "type": "string"
+            },
+            {
+              "id": "6d666c7e-c320-4e50-9c0f-404d175fb445",
+              "name": "windDirection",
+              "value": "={{ $('Wind Directions').item.json.windDirection }}",
+              "type": "string"
+            },
+            {
+              "id": "c83f15af-cd81-4bb0-bb16-190f290743b7",
+              "name": "pressure",
+              "value": "={{ $('OpenWeatherMap (get Compostela Weather)').item.json.main.pressure}} MB",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        640,
+        304
+      ],
+      "id": "5600d992-c011-4de8-8b14-632eda910042",
+      "name": "Edit Fields (Compostela)"
+    },
+    {
+      "parameters": {
+        "operation": "multiStep",
+        "operations": {
+          "operations": [
+            {
+              "operation": "text",
+              "text": "={{ $json.Location }}",
+              "fontSize": 40,
+              "fontColor": "#FFFFFF",
+              "positionX": 175,
+              "positionY": 400,
+              "font": "/usr/share/fonts/truetype/msttcorefonts/Arial_Bold.ttf"
+            },
+            {
+              "operation": "text",
+              "text": "={{ $json.tempCompostela }}",
+              "fontSize": 140,
+              "fontColor": "#379bd8",
+              "positionX": 450,
+              "positionY": 625,
+              "font": "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman_Bold.ttf"
+            },
+            {
+              "operation": "text",
+              "text": "={{ $('Edit Fields (Compostela)').item.json.humidity }}",
+              "fontSize": 40,
+              "positionX": 195,
+              "positionY": 880,
+              "font": "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman_Bold.ttf"
+            },
+            {
+              "operation": "text",
+              "text": "={{ $json.windSpeed }}",
+              "fontSize": 40,
+              "positionX": 340,
+              "positionY": 880,
+              "font": "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman_Bold.ttf"
+            },
+            {
+              "operation": "text",
+              "text": "={{ $json.windDirection }}",
+              "fontSize": 40,
+              "positionX": 590,
+              "positionY": 880,
+              "font": "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman_Bold.ttf"
+            },
+            {
+              "operation": "text",
+              "text": "={{ $json.pressure }}",
+              "fontSize": 40,
+              "positionX": 770,
+              "positionY": 880,
+              "font": "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman_Bold.ttf"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.editImage",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        304
+      ],
+      "id": "9b540ea5-8007-470f-ace0-e446c5cd841c",
+      "name": "Edit Image"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1_KLI5wAEegdNKllp38vul1sWtFxiklvF",
+          "mode": "list",
+          "cachedResultName": "Compostela Weather Forecast.png",
+          "cachedResultUrl": "https://drive.google.com/file/d/1_KLI5wAEegdNKllp38vul1sWtFxiklvF/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        864,
+        304
+      ],
+      "id": "ead5b55a-ef84-40bb-939a-b1b4c7efbc7e",
+      "name": "Weather Template",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "bf9NyW1njRGvnCSQ",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const deg = item.json.wind.deg;\n  let direction = \"\";\n\n  if ((deg >= 0 && deg <= 11) || (deg >= 349 && deg <= 360)) direction = \"N\";\n  else if (deg >= 12 && deg <= 33) direction = \"NNE\";\n  else if (deg >= 34 && deg <= 56) direction = \"NE\";\n  else if (deg >= 57 && deg <= 78) direction = \"ENE\";\n  else if (deg >= 79 && deg <= 101) direction = \"E\";\n  else if (deg >= 102 && deg <= 123) direction = \"ESE\";\n  else if (deg >= 124 && deg <= 146) direction = \"SE\";\n  else if (deg >= 147 && deg <= 168) direction = \"SSE\";\n  else if (deg >= 169 && deg <= 191) direction = \"S\";\n  else if (deg >= 192 && deg <= 213) direction = \"SSW\";\n  else if (deg >= 214 && deg <= 235) direction = \"SW\";\n  else if (deg >= 236 && deg <= 257) direction = \"WSW\";\n  else if (deg >= 258 && deg <= 280) direction = \"W\";\n  else if (deg >= 281 && deg <= 302) direction = \"WNW\";\n  else if (deg >= 303 && deg <= 324) direction = \"NW\";\n  else if (deg >= 325 && deg <= 348) direction = \"NNW\";\n\n  item.json.windDirection = direction;\n  return item;\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        304
+      ],
+      "id": "11facb92-e522-43c9-a444-5893b95d7b33",
+      "name": "Wind Directions"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 6,12,18,22 * * *"
+            },
+            {
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -480,
+        224
+      ],
+      "id": "98c186f0-f2d1-4798-a49b-8b1057d63f81",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "OpenWeatherMap (get Compostela Weather)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to Facebook Page": {
+      "main": [
+        []
+      ]
+    },
+    "OpenWeatherMap (get Compostela Weather)": {
+      "main": [
+        [
+          {
+            "node": "Wind Directions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model Compostela": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields (Compostela)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields (Compostela)": {
+      "main": [
+        [
+          {
+            "node": "Weather Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Image": {
+      "main": [
+        [
+          {
+            "node": "Post to Facebook Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weather Template": {
+      "main": [
+        [
+          {
+            "node": "Edit Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wind Directions": {
+      "main": [
+        [
+          {
+            "node": "Message a model Compostela",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "OpenWeatherMap (get Compostela Weather)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c077c055-8f63-4646-b85d-cf4932f072fd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d6cc6809fb11dafde9f184b182a2158aef2df34e0bfd5679dba364d5ed6bcf0f"
+  },
+  "id": "XPfS3wmbF4LRG4Ad",
+  "tags": []
+}
